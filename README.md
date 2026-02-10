@@ -2,7 +2,8 @@
 
 This repo provides `upgrade-runtime.sh`, a helper script that scans
 InferenceServices in a namespace and switches them from namespaced
-ServingRuntimes to the latest matching ClusterServingRuntime.
+ServingRuntimes to the latest runtime defined by templates in
+`redhat-ods-applications`.
 
 ## Download
 
@@ -19,26 +20,55 @@ chmod +x upgrade-runtime.sh
 
 ## Run
 
-Dry-run (default):
+Plan and prompt (default). The script shows the upgrade plan, asks to proceed,
+and automatically creates a backup for rollback:
 
 ```bash
 ./upgrade-runtime.sh -n <namespace>
 ```
 
-Apply changes:
+Apply changes without prompting (backup still created automatically):
 
 ```bash
 ./upgrade-runtime.sh -n <namespace> --apply
 ```
 
-Apply and cleanup unused namespaced runtimes:
+Roll back using a backup file:
 
 ```bash
-./upgrade-runtime.sh -n <namespace> --apply --cleanup
+./upgrade-runtime.sh -n <namespace> --rollback ./runtime-backup-<namespace>-<timestamp>.tsv
+```
+
+Save output to a log file:
+
+```bash
+./upgrade-runtime.sh -n <namespace> --apply --log-dir ./logs
 ```
 
 Verbose output:
 
 ```bash
 ./upgrade-runtime.sh -n <namespace> -v
+```
+
+Example output (default interactive mode):
+
+```text
+$ ./upgrade-runtime.sh -n test-raghul
+Serving Runtime Upgrade Helper v1.0
+
+[INFO] Checking prerequisites...
+[INFO] Prerequisites check passed
+
+[INFO] Scanning InferenceServices in namespace: test-raghul
+
+Planned Runtime Upgrades
+
+Model: vllm-cuda-raw
+  Current runtime: vllm-cuda-raw (v0.10.1.1)
+  Target runtime: vllm-cuda-runtime (v0.13.0)
+  Source: Template/vllm-cuda-runtime-template
+  Result: planned (apply pending)
+
+Proceed with upgrades and create backup? [y/N]:
 ```

@@ -1,0 +1,13 @@
+[0;32m[INFO][0m Logging to: ./logs/upgrade-runtime-test-raghul-20260210-171208.log
+[0;32m[INFO][0m Checking prerequisites...
+[0;32m[INFO][0m Prerequisites check passed
+
+[0;32m[INFO][0m Backup file: ./runtime-backup-test-raghul-20260210-171209.tsv
+[0;32m[INFO][0m Rollback script: ./rollback-test-raghul-20260210-171209.sh
+
+[0;32m[INFO][0m Scanning InferenceServices in namespace: test-raghul
+
+[1m[0;34mPlanned Runtime Upgrades[0m
+
+
+[0;32m[INFO][0m Done

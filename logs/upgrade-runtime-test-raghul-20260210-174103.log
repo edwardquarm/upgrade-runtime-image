@@ -1,0 +1,23 @@
+[0;32m[INFO][0m Logging to: ./logs/upgrade-runtime-test-raghul-20260210-174103.log
+[0;32m[INFO][0m Checking prerequisites...
+[0;32m[INFO][0m Prerequisites check passed
+
+[0;32m[INFO][0m Scanning InferenceServices in namespace: test-raghul
+
+[1m[0;34mPlanned Runtime Upgrades[0m
+
+[1mModel:[0m vllm-cuda-raw
+  [0;36mCurrent runtime:[0m vllm-cuda-raw (v0.10.1.1)
+  [0;36mTarget runtime:[0m vllm-cuda-runtime (v0.13.0)
+  [0;36mSource:[0m Template/vllm-cuda-runtime-template
+  [1;33mResult:[0m planned (apply pending)
+
+
+[0;32m[INFO][0m Enabling backup for apply
+[0;32m[INFO][0m Backup file: ./runtime-backup-test-raghul-20260210-174109.tsv
+[0;32m[INFO][0m Rollback script: ./rollback-test-raghul-20260210-174109.sh
+
+[0;32mResult:[0m updated vllm-cuda-raw
+[0;32m[INFO][0m Applied updates to 1 InferenceService(s)
+
+[0;32m[INFO][0m Done

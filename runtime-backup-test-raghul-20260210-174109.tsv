@@ -1,2 +1,0 @@
-# isvc_name	runtime_path	runtime_name
-vllm-cuda-raw	/spec/predictor/model/runtime	vllm-cuda-raw

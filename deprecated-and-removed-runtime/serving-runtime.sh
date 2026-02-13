@@ -214,7 +214,7 @@ get_servingruntime_images() {
 
         if [ "$removed" = true ]; then
             record_removed_template "$template_name"
-            echo -e "  ${RED}X Template Removed:${NC} This template has been removed. Please migrate the workload to another template."
+            echo -e "  ${RED}X Template Removed:${NC} This template has been removed. It's recommended to migrate the workload to another template before upgrading to RHOAI 3.0 or later."
         fi
     else
         echo -e "  ${YELLOW}Template Used:${NC} Not found in annotations"

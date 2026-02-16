@@ -150,14 +150,14 @@ get_inferenceservice_info() {
     local target_namespace="$2"
     local runtime_name
     local deployment_mode
-    local status
-    local ready_status
+    local ready_condition_status
+    local stopped_condition_status
 
     # Get basic InferenceService information
     runtime_name=$(oc get inferenceservice "$isvc_name" -n "$target_namespace" -o jsonpath='{.spec.predictor.model.runtime}' 2>/dev/null)
     deployment_mode=$(oc get inferenceservice "$isvc_name" -n "$target_namespace" -o jsonpath='{.metadata.annotations.serving\.kserve\.io/deploymentMode}' 2>/dev/null || echo "Serverless (default)")
-    status=$(oc get inferenceservice "$isvc_name" -n "$target_namespace" -o jsonpath='{.status.conditions[-1].type}' 2>/dev/null || echo "Unknown")
-    ready_status=$(oc get inferenceservice "$isvc_name" -n "$target_namespace" -o jsonpath='{.status.conditions[-1].status}' 2>/dev/null || echo "Unknown")
+    ready_condition_status=$(oc get inferenceservice "$isvc_name" -n "$target_namespace" -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}' 2>/dev/null)
+    stopped_condition_status=$(oc get inferenceservice "$isvc_name" -n "$target_namespace" -o jsonpath='{.status.conditions[?(@.type=="Stopped")].status}' 2>/dev/null)
 
     # Display InferenceService information
     echo -e "${BOLD}Model:${NC} $isvc_name"
@@ -166,7 +166,16 @@ get_inferenceservice_info() {
     fi
     echo -e "  ${CYAN}Runtime:${NC} ${runtime_name:-N/A}"
     echo -e "  ${CYAN}Deployment Mode:${NC} $deployment_mode"
-    echo -e "  ${CYAN}Status:${NC} $status ($ready_status)"
+    if [ "$ready_condition_status" = "True" ]; then
+        echo -e "  ${CYAN}Ready:${NC} Yes"
+    elif [ "$ready_condition_status" = "False" ]; then
+        echo -e "  ${CYAN}Ready:${NC} No"
+    else
+        echo -e "  ${CYAN}Ready:${NC} Unknown"
+    fi
+    if [ "$stopped_condition_status" = "True" ]; then
+        echo -e "  ${CYAN}Stopped:${NC} Yes"
+    fi
 
     # Get ServingRuntime images if runtime exists
     if [ -n "$runtime_name" ] && [ "$runtime_name" != "null" ]; then
@@ -214,10 +223,16 @@ get_servingruntime_images() {
 
         if [ "$removed" = true ]; then
             record_removed_template "$template_name"
-            echo -e "  ${RED}X Template Removed:${NC} This template has been removed. It's recommended to migrate the workload to another template before upgrading to RHOAI 3.0 or later."
+            if [ "$template_name" = "caikit-tgis-serving-template" ]; then
+                echo -e "  ${RED}X Template Removed:${NC} If you need to deploy new workloads in the future, create a custom ServingRuntime based on the RHOAI 2.25 image, as the Caikit-TGIS serving template will no longer be available after upgrade."
+            elif [ "$template_name" = "ovms" ]; then
+                echo -e "  ${RED}X Template Removed:${NC} Existing OVMS ModelMesh deployments will be migrated to RawDeployments after the upgrade is complete. If you need to deploy new workloads in the future, use the kserve-ovms ServingRuntime."
+            else
+                echo -e "  ${RED}X Template Removed:${NC} This template has been removed. It's recommended to migrate the workload to another template before upgrading to RHOAI 3.0 or later."
+            fi
         fi
     else
-        echo -e "  ${YELLOW}Template Used:${NC} Not found in annotations"
+        echo -e "  ${YELLOW}Template Used:${NC} Custom ServingRuntime"
     fi
 
     # Detect vLLM API server usage
